@@ -16,7 +16,8 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 ### ToDo:
 - Server
 - [x] Create repo
-- [ ] Create node server
+- [x] Create node server
+- [ ] Install dependencies (Ts, express, nodemon, dotenv, multer, sqlite3, zod)
 - [ ] API endpoint to recive file
 - [ ] Save file to filesystem
 - [ ] Endpoint to ask to send files to client
