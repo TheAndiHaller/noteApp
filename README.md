@@ -17,11 +17,11 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 - Server
 - [x] Create repo
 - [x] Create node server
-- [ ] Install dependencies (Ts, express, nodemon, dotenv, multer, sqlite3, zod)
-- [ ] API endpoint to recive file
+- [x] Install dependencies (Ts, express, nodemon, dotenv, multer, sqlite3, zod)
+- [x] API endpoint to receive file
 - [ ] Save file to filesystem
 - [ ] Endpoint to ask to send files to client
   
 - Client
-- [ ] Python CLI tool to send file to server
+- [x] Python CLI tool to send file to server
 - [ ] Command to ask to download files from server

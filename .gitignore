@@ -44,3 +44,63 @@ temp/
 
 # Nodemon config
 .nodemonignore
+
+# For Python
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+
+# Distribution/packaging
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+*.dist-info/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.cache
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Pyenv
+.python-version
+
+# Docker
+*.env
+.dockerignore
+
+# System files
+.DS_Store
+Thumbs.db

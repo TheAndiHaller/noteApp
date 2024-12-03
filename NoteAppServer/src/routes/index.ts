@@ -1,14 +1,12 @@
 import { Router, Request, Response } from "express";
+import sync from "./sync";
 
 const router = Router();
 
-// Sample route
 router.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World!");
+  res.send("Home");
 });
 
-router.get("/example", (req: Request, res: Response) => {
-  res.send("This is an example route");
-});
+router.use("/sync", sync);
 
 export default router;
