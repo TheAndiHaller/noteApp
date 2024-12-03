@@ -1,10 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express";
 import multer from "multer";
 
+const dirname: string = "uploads/";
 const router = Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, dirname);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -16,20 +17,28 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 1000000 }, // 1MB file size limit
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'text/plain' ) {
+    if (file.mimetype === "text/plain" || file.mimetype === "text/markdown" || file.mimetype === 'text/csv') {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type'));
+      cb(new Error("Invalid file type"));
     }
   }
 });
 
 // Upload a file
-router.post('/upload', upload.single('file'), (req: Request, res: Response, next: NextFunction) => {
+router.post('/upload', upload.single("file"), (req: Request, res: Response, next: NextFunction) => {
   console.log("File received");
   console.log(req.file)
-  res.status(201).json({ message: 'file uploaded successfully'});
-})
+  res.status(201).json({ message: "file uploaded successfully"});
+});
+
+// Download a file
+router.get("/download", (req: Request, res: Response) => {
+  console.log("Sending file");
+  const file = `${dirname}test.txt`;
+  res.download(file);
+});
+
 
 /*
 // create a catch-all middleware that handles unhandled errors.

@@ -4,7 +4,7 @@ import sync from "./sync";
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
-  res.send("Home");
+  res.send("NoteApp");
 });
 
 router.use("/sync", sync);

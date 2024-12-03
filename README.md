@@ -11,17 +11,29 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 
 
 # Roadmap
+## Version 0.2.0
+- Server
+- [ ] POST handle multiple files 
+- [ ] GET handle multiple files
+- [ ] Download al files from the folder
 
-## Version 0.5
+- Client
+- [ ] POST multiple files
+- [ ] GET multiple files
+- [ ] Send all files in folder
+- [ ] Test watchdog Module
+- [ ] Or use CRC32 to verifie if a file changed
+
+## Version 0.1.0
 ### ToDo:
 - Server
 - [x] Create repo
 - [x] Create node server
 - [x] Install dependencies (Ts, express, nodemon, dotenv, multer, sqlite3, zod)
 - [x] API endpoint to receive file
-- [ ] Save file to filesystem
-- [ ] Endpoint to ask to send files to client
+- [x] Save file to filesystem
+- [x] Endpoint to download files to client
   
 - Client
 - [x] Python CLI tool to send file to server
-- [ ] Command to ask to download files from server
+- [x] Function request GET to download files from server
