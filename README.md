@@ -13,14 +13,14 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 # Roadmap
 ## Version 0.2.0
 - Server
-- [ ] POST handle multiple files 
-- [ ] GET handle multiple files
-- [ ] Download al files from the folder
+- [x] POST handle multiple files 
+- [x] GET handle multiple files
+- [x] Download al files from the folder
 
 - Client
-- [ ] POST multiple files
-- [ ] GET multiple files
-- [ ] Send all files in folder
+- [x] POST multiple files
+- [x] GET multiple files
+- [x] Send all files in folder
 - [ ] Test watchdog Module
 - [ ] Or use CRC32 to verifie if a file changed
 
