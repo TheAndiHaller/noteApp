@@ -10,7 +10,25 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 5. SQLite to store metadata (timestamps, path)
 
 
+## Workflow:
+
+
+
+
 # Roadmap
+## Version 0.3.0
+- Server
+- [ ] Detect file changes
+- [ ] Keep track of files / dates
+
+- Client
+- [ ] Detect file changes
+- [ ] Keep track of files / dates
+- [ ] Config file (server URL, folder path, user)
+- [x] Add CLI commands with argparse or sys.argv
+- [x] Integrate script to path
+
+
 ## Version 0.2.0
 - Server
 - [x] POST handle multiple files 
@@ -21,8 +39,8 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 - [x] POST multiple files
 - [x] GET multiple files
 - [x] Send all files in folder
-- [ ] Test watchdog Module
-- [ ] Or use CRC32 to verifie if a file changed
+- [x] Test watchdog Module (for auto sync)
+- [x] Implement CRC32 to verify if a file changed (for manual sync)
 
 ## Version 0.1.0
 ### ToDo:

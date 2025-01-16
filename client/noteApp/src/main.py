@@ -1,8 +1,11 @@
+import sys
+sys.path.append("libs")
+
 import requests
 import os
-import json
+import zlib
 
-print("Starting...")
+# import watchdog # for monitoring changes in folder
 
 server_url = "http://localhost:3000/sync/"
 
@@ -34,7 +37,7 @@ def uploadFolder():
   for filename in os.listdir():
     # Build the full file path
     # file_path = os.path.join(folder_path, filename)
-    file_path =  filename
+    file_path = filename
   
     # Check if it's a file (not a folder)
     if os.path.isfile(file_path):
@@ -57,8 +60,42 @@ def getFileList():
   print(fileList)
   downloadFiles(fileList)
 
-getFileList()
+#getFileList()
 #uploadFolder()
 
-print("Done")
+def calculate_crc32(data: bytes) -> int:
+    return zlib.crc32(data)
 
+def syncFolder():
+  print("syncing...")
+  
+  # Iterate through all files in the folder
+  for filename in os.listdir():
+    # Build the full file path
+    # file_path = os.path.join(folder_path, filename)
+    file_path = filename
+  
+    # Check if it's a file (not a folder)
+    if os.path.isfile(file_path):
+      if file_path.endswith(".txt") or file_path.endswith(".md") or file_path.endswith('.csv'):
+        with open(file_path, 'rb') as file:
+          file_data = file.read()
+          checksum = calculate_crc32(file_data)
+          print(f"File {filename} Checksum: {checksum}") 
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Error: you must provide an argument. --help")
+        sys.exit(1)
+    
+    elif sys.argv[1] == "--help":
+      print("NoteApp 0.2.0. To sync folder --sync")
+      sys.exit(1)
+    
+    elif sys.argv[1] == "--sync":
+      syncFolder()
+      sys.exit(1)
+    
+    else:
+      print("Command: " + sys.argv[1] + " not recognized. --help")  
+      sys.exit(1)

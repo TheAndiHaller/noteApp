@@ -55,6 +55,9 @@ __pycache__/
 venv/
 .env/
 
+# Libraries
+libs/
+
 # Distribution/packaging
 *.egg
 *.egg-info/
