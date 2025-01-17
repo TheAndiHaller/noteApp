@@ -63,7 +63,7 @@ def getFileList():
 
 # Calculate the CRC32 to detect changes in files
 def calculate_crc32(data: bytes) -> int:
-    return zlib.crc32(data)
+    return str(zlib.crc32(data))
 
 # Send metadata to server for comparation
 def sendMetadata(metadata):
@@ -80,10 +80,6 @@ def sendMetadata(metadata):
      print(f"Error sending metadata to server: {e}")
      return {"error": str(e)}
    
-# Upload list of files
-#def uploadFileList(files):
-   
-
 
 # Synchronises the local folder with the server
 def syncFolder(folder_path):
@@ -100,30 +96,35 @@ def syncFolder(folder_path):
         with open(file_path, 'rb') as file:
           file_data = file.read()
           checksum = calculate_crc32(file_data)
-          print(f"File {filename} Checksum: {checksum}")
           stat = os.stat(file_path)
+          print(f"File {filename} Modi: {stat.st_mtime}")
 
           file_found = next((file for file in metadata['files'] if file['filename'] == filename), None)
           if file_found:
-              # Check if the file has been modified
-              if file_found['crc32'] != checksum:
-                  print(f"{filename} has been modified.")
-                  file_found['crc32'] = checksum
-              else:
-                  print(f"{filename} is up-to-date.")
+            # Check if the file has been modified
+            if file_found['crc32'] != checksum:
+                print(f"{filename} has been modified.")
+                file_found["inode"] =  str(stat.st_ino)
+                file_found["crc32"] =  checksum
+                file_found["size"] = stat.st_size
+                file_found["mtime"] =  stat.st_mtime
+                file_found["ctime"] =  stat.st_birthtime
+                file_found["state"] =  "active"
+            else:
+                print(f"{filename} is up-to-date.")
           else:
-              # Add the new name to the array
-              data = {
-                "filename": filename, 
-                "inode": stat.st_ino,
-                "crc32": checksum, 
-                "size": stat.st_size,
-                "mtime": stat.st_mtime,
-                "ctime": stat.st_birthtime,
-                "state": "active"
-                }
-              metadata['files'].append(data)
-              print(f"Added {filename} with  {data}")
+            # Add the new name to the array
+            data = {
+              "filename": filename, 
+              "inode": str(stat.st_ino),
+              "crc32": checksum, 
+              "size": stat.st_size,
+              "mtime": stat.st_mtime,
+              "ctime": stat.st_birthtime,
+              "state": "active"
+              }
+            metadata['files'].append(data)
+            print(f"Added {filename} with  {data}")
   
   saveLocalMetadataFile(metadata)
   server_data = sendMetadata(metadata['files'])
