@@ -1,5 +1,4 @@
 # NoteApp
-
 ## Brainstorming
 Notes are simple .md .txt .cvs files that can be edited with any text editor.
 
@@ -10,21 +9,54 @@ Notes are simple .md .txt .cvs files that can be edited with any text editor.
 5. SQLite to store metadata (timestamps, path)
 
 
+File metadata
+{
+  "filename": "example.txt",
+  "inode": "8718371873812718"
+  "crc32": "0x12345678",
+  "size": 1024,
+  "mtime": "2025-01-16T12:00:00",
+  "ctime": "2025-01-16T12:00:00",
+  "state": "active | deleted | conflict"  
+}
+
 ## Workflow:
+1. Set folder to sync and user. Save to config file. 
+2. --sync checks for files, if new, adds to the local file list with calculated CRC32, and timestamp
+   If not new (already on list), check if CRC32 is same, if so, do nothing, else update CRC32 and timestamp
+3. Send data to server, check for files on server.
 
 
+## Install
+### Windows
+Create "noteapp.bat" file in "C:\Windows\System32" and add:
+
+@echo off
+python C:\path\to\main.py %*
+
+Now, you can run:
+noteapp --sync
+
+## To install all the necesary libraries directly
+pip install --target ./libs -r requirements.txt
 
 
 # Roadmap
 ## Version 0.3.0
 - Server
-- [ ] Detect file changes
-- [ ] Keep track of files / dates
+- [x] Route metadata_compare to check client metadata against server
+- [x] Route to recive file + new metadata
+- [ ] Update server metadata file with new file data
+- [ ] Route to send files to client + metadata
 
 - Client
-- [ ] Detect file changes
-- [ ] Keep track of files / dates
-- [ ] Config file (server URL, folder path, user)
+- [x] Create and load config file 
+- [x] Create metadata json for tracked files
+- [x] Send local metadata to compare to server
+- [x] Get instructions to upload or download files or leave them unchanged
+- [ ] Upload new or modified files
+- [ ] Download missing files or files that are newer on the server
+- [ ] Implement --setFolder to save current path as folder to sync
 - [x] Add CLI commands with argparse or sys.argv
 - [x] Integrate script to path
 
