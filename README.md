@@ -46,7 +46,7 @@ pip install --target ./libs -r requirements.txt
 - Server
 - [x] Route metadata_compare to check client metadata against server
 - [x] Route to recive file + new metadata
-- [ ] Update server metadata file with new file data
+- [x] Update server metadata file with new file data
 - [ ] Route to send files to client + metadata
 
 - Client
@@ -54,7 +54,7 @@ pip install --target ./libs -r requirements.txt
 - [x] Create metadata json for tracked files
 - [x] Send local metadata to compare to server
 - [x] Get instructions to upload or download files or leave them unchanged
-- [ ] Upload new or modified files
+- [x] Upload new or modified files
 - [ ] Download missing files or files that are newer on the server
 - [ ] Implement --setFolder to save current path as folder to sync
 - [x] Add CLI commands with argparse or sys.argv

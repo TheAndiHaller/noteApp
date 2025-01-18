@@ -24,7 +24,7 @@ def upload(file, metadata):
 # Download file
 def download(fileName):
   try:
-    res = requests.get(server_url + "download", params={"file" : fileName})
+    res = requests.get(server_url + "download", params={"file" : fileName}, timeout=10)
     res.raise_for_status() 
 
     with open(fileName, "w", encoding="utf-8") as file:
