@@ -22,12 +22,17 @@ def upload(file, metadata):
   print(res.text)
 
 # Download file
-def download(fileName):
+def download(fileName, folder_path):
   try:
     res = requests.get(server_url + "download", params={"file" : fileName}, timeout=10)
     res.raise_for_status() 
+    
+    file_metadata = res.headers.get("X-File-Metadata")
+    if file_metadata:
+      print("File Metadata:", file_metadata)
 
-    with open(fileName, "w", encoding="utf-8") as file:
+    file_path = os.path.join(folder_path, fileName)
+    with open(file_path, "w", encoding="utf-8") as file:
       print(res.text)
       file.write(res.text)
     print("File downloaded and saved successfully.")
@@ -124,10 +129,7 @@ def syncFolder(folder_path):
   print("Files to download: ")
   print(toDownload)
   for filename in toDownload:
-    file_path = os.path.join(folder_path, filename)
-    file_metadata = next((file for file in metadata['files'] if file['filename'] == filename))
-    with open(file_path, 'r') as file:
-       upload({"file" : file}, file_metadata)
+    download(filename, folder_path)
 
 def loadConfig():
   try:

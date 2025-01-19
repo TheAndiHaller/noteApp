@@ -105,6 +105,33 @@ router.get("/download", (req: Request, res: Response) => {
   const file = path.join(dirname, fileName); 
   console.log(`Serving file: ${file}`);
 
+
+  const serverMetadataPath = path.join("metadata/", "server_metadata.json");
+
+  let serverMetadata: Metadata[] = [];
+  let fileMetadata: Metadata;
+
+  try {
+    const data = fs.readFileSync(serverMetadataPath, 'utf8');
+    serverMetadata = JSON.parse(data);
+    console.log("serverMetadata");
+    console.log(serverMetadata);
+  } catch (err) {
+    console.error(err);
+  }
+
+  const index = serverMetadata.findIndex(
+    (ser_itm) => fileName === ser_itm.filename
+  );
+  
+  if (index !== -1) {
+    fileMetadata = serverMetadata[index];
+    res.setHeader("X-File-Metadata", JSON.stringify(fileMetadata));
+  } else {
+    console.log("File does not exist, Error");
+    res.status(404).json({"Error" : "File not found"});
+  }
+
   res.download(file, (err) => {
     if (err) {
       console.error(`Error sending file: ${err}`);

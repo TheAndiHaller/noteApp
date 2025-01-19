@@ -48,7 +48,7 @@ pip install --target ./libs -r requirements.txt
 - [x] Route metadata_compare to check client metadata against server
 - [x] Route to recive file + new metadata
 - [x] Update server metadata file with new file data
-- [ ] Route to send files to client + metadata
+- [x] Route to send files to client + metadata
 
 - Client
 - [x] Create and load config file 
