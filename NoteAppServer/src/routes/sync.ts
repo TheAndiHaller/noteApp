@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 1000000 }, // 1MB file size limit
+  limits: { fileSize: 10000000 }, // 10MB file size limit
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype === "text/plain" ||
@@ -34,22 +34,16 @@ const upload = multer({
 // Type for metadata
 type Metadata = {
   filename: string,
-  inode: string,
   crc32: string,
-  size: number,
   mtime: number,
-  ctime: number,
   state: string
 };
 
 function parseMetadata(data: any): Metadata {
   return {
     filename: String(data.filename), // Ensure it's a string
-    inode: String(data.inode),       // Ensure it's a string
     crc32: String(data.crc32),       // Ensure it's a string
-    size: Number(data.size),         // Convert to number
     mtime: Number(data.mtime),       // Convert to number
-    ctime: Number(data.ctime),       // Convert to number
     state: String(data.state),       // Ensure it's a string
   };
 }

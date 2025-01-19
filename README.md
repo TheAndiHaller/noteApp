@@ -20,6 +20,7 @@ File metadata
   "state": "active | deleted | conflict"  
 }
 
+
 ## Workflow:
 1. Set folder to sync and user. Save to config file. 
 2. --sync checks for files, if new, adds to the local file list with calculated CRC32, and timestamp

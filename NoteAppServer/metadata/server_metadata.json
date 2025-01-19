@@ -1,1 +1,1 @@
-[{"filename":"bye.txt","inode":"13510798882142667","crc32":"2000130356","size":3,"mtime":1737057077.194672,"ctime":1737054875.4714499,"state":"active"},{"filename":"hello.txt","inode":"39969446693098506","crc32":"3965532801","size":79,"mtime":1737148029.9113429,"ctime":1737052580.8427987,"state":"active"}]
+[{"filename":"bye.txt","crc32":"2000130356","mtime":1737057077.194672,"state":"active"},{"filename":"hello.txt","crc32":"3965532801","mtime":1737148029.9113429,"state":"active"}]

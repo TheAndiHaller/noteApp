@@ -36,18 +36,6 @@ def download(fileName):
   except Exception as e:
     print(f"An error occurred: {e}")
 
-# Upload all files in folder
-def uploadFolder(folder_path):
-  for filename in os.listdir(folder_path):
-    file_path = os.path.join(folder_path, filename)
-    #file_path = filename
-    if os.path.isfile(file_path):
-      if file_path.endswith(".txt") or file_path.endswith(".md") or file_path.endswith('.csv'):
-        with open(file_path, 'r') as file:
-          print(f"Sending {filename}...")
-          upload({"file" : file})
-          print('-' * 40)
-
 # Download all files from folder
 def downloadFiles(fileList):
   for fileName in fileList:
@@ -104,11 +92,8 @@ def syncFolder(folder_path):
             # Check if the file has been modified
             if file_found['crc32'] != checksum:
                 print(f"{filename} has been modified.")
-                file_found["inode"] =  str(stat.st_ino)
                 file_found["crc32"] =  checksum
-                file_found["size"] = stat.st_size
                 file_found["mtime"] =  stat.st_mtime
-                file_found["ctime"] =  stat.st_birthtime
                 file_found["state"] =  "active"
             else:
                 print(f"{filename} is up-to-date.")
@@ -116,11 +101,8 @@ def syncFolder(folder_path):
             # Add the new name to the array
             data = {
               "filename": filename, 
-              "inode": str(stat.st_ino),
               "crc32": checksum, 
-              "size": stat.st_size,
               "mtime": stat.st_mtime,
-              "ctime": stat.st_birthtime,
               "state": "active"
               }
             metadata['files'].append(data)
@@ -131,6 +113,7 @@ def syncFolder(folder_path):
   toUpload = server_data['toUpload']
   toDownload = server_data['toDownload']
   unchanged = server_data['unchanged']
+  print("Files to upload: ")
   print(toUpload)
   for filename in toUpload:
     file_path = os.path.join(folder_path, filename)
@@ -138,6 +121,13 @@ def syncFolder(folder_path):
     with open(file_path, 'r') as file:
        upload({"file" : file}, file_metadata)
 
+  print("Files to download: ")
+  print(toDownload)
+  for filename in toDownload:
+    file_path = os.path.join(folder_path, filename)
+    file_metadata = next((file for file in metadata['files'] if file['filename'] == filename))
+    with open(file_path, 'r') as file:
+       upload({"file" : file}, file_metadata)
 
 def loadConfig():
   try:
@@ -191,10 +181,6 @@ if __name__ == "__main__":
   
   elif sys.argv[1] == "--sync":
     syncFolder(folder_path)
-    sys.exit(1)
-  
-  elif sys.argv[1] == "--folder":
-    uploadFolder(folder_path)
     sys.exit(1)
 
   else:
