@@ -56,7 +56,7 @@ pip install --target ./libs -r requirements.txt
 - [x] Send local metadata to compare to server
 - [x] Get instructions to upload or download files or leave them unchanged
 - [x] Upload new or modified files
-- [ ] Download missing files or files that are newer on the server
+- [x] Download missing files or files that are newer on the server
 - [ ] Implement --setFolder to save current path as folder to sync
 - [x] Add CLI commands with argparse or sys.argv
 - [x] Integrate script to path

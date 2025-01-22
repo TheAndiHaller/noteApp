@@ -26,10 +26,32 @@ def download(fileName, folder_path):
   try:
     res = requests.get(server_url + "download", params={"file" : fileName}, timeout=10)
     res.raise_for_status() 
-    
+
+    # ToDo: except if no metadata 
     file_metadata = res.headers.get("X-File-Metadata")
-    if file_metadata:
-      print("File Metadata:", file_metadata)
+    file_metadata_json = json.loads(file_metadata)
+    if file_metadata_json:
+      print("File Metadata:", file_metadata_json)
+      # get local metadata file
+      metadata = getLocalMetadataFile()
+      filename = file_metadata_json["filename"] 
+      file_found = next((file for file in metadata['files'] if file['filename'] == filename), None)
+      if file_found:
+        print(f"{filename} has been modified.")
+        file_found["crc32"] = file_metadata_json["crc32"] 
+        file_found["mtime"] = file_metadata_json["mtime"]
+        file_found["state"] = file_metadata_json["state"]
+      else:
+        # Add the new name to the array
+        data = {
+          "filename": filename, 
+          "crc32": file_metadata_json["crc32"], 
+          "mtime": file_metadata_json["mtime"],
+          "state": file_metadata_json["state"]
+          }
+        metadata['files'].append(data)
+        print(f"Added {filename} with  {data}")
+      saveLocalMetadataFile(metadata)
 
     file_path = os.path.join(folder_path, fileName)
     with open(file_path, "w", encoding="utf-8") as file:
