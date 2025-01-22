@@ -166,10 +166,21 @@ def loadConfig():
       json.dump(default_content, file)  # Write the default content as JSON
       return default_content  # Return the default content
 
+def saveConfig(cwd):
+  folderToTrack = {"folderToTrack": cwd}
+  with open(CONFIG_FILE_PATH, 'w') as file:
+    json.dump(folderToTrack, file)  # Write the default content as JSON
+
 # Get the folder to track
 def get_folder_to_track():
     config = loadConfig()
     return Path(config.get("folderToTrack", "."))  # Default to current directory
+
+# Get the folder to track
+def set_folder_to_track():
+    cwd = os.getcwd()
+    print(cwd)
+    saveConfig(cwd)
 
 # Load metadata file
 def getLocalMetadataFile():
@@ -199,14 +210,18 @@ if __name__ == "__main__":
       print("Error: you must provide an argument. --help")
       sys.exit(1)
   
-  elif sys.argv[1] == "--help":
-    print("NoteApp 0.2.0. To sync folder --sync")
+  elif sys.argv[1] == "help":
+    print("NoteApp 0.2.0. To sync folder sync")
     sys.exit(1)
   
-  elif sys.argv[1] == "--sync":
+  elif sys.argv[1] == "sync":
     syncFolder(folder_path)
     sys.exit(1)
 
+  elif sys.argv[1] == "setFolder":
+    set_folder_to_track()
+    sys.exit(1)
+
   else:
-    print("Command: " + sys.argv[1] + " not recognized. --help")  
+    print("Command: " + sys.argv[1] + " not recognized. help")  
     sys.exit(1)

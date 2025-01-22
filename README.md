@@ -43,6 +43,15 @@ pip install --target ./libs -r requirements.txt
 
 
 # Roadmap
+## Version 0.4.0
+- Server
+- [ ] Trash bin for deleted files.
+
+- Client
+- [ ] Recursive check for files in subfolders
+- [ ] Implement file deletrion (Change status to deleted)
+
+
 ## Version 0.3.0
 - Server
 - [x] Route metadata_compare to check client metadata against server
@@ -57,7 +66,7 @@ pip install --target ./libs -r requirements.txt
 - [x] Get instructions to upload or download files or leave them unchanged
 - [x] Upload new or modified files
 - [x] Download missing files or files that are newer on the server
-- [ ] Implement --setFolder to save current path as folder to sync
+- [x] Implement --setFolder to save current path as folder to sync
 - [x] Add CLI commands with argparse or sys.argv
 - [x] Integrate script to path
 
