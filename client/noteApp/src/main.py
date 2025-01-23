@@ -13,8 +13,55 @@ import requests
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 METADATA_FILE_PATH = os.path.join(SCRIPT_DIR, 'local_metadata.json')
 CONFIG_FILE_PATH = os.path.join(SCRIPT_DIR, 'config.json')
+VERSION = "V0.4.0"
 
 server_url = "http://localhost:3000/sync/"
+
+class Config:
+  def __init__(self):
+    self.serverURL = "http://localhost:3000/sync/"
+    self.folderPath = None
+
+    # Load configuration file
+    self.loadConfigFile() 
+
+  def loadConfigFile(self):
+    """Load configuration from the config file."""
+    try:
+      with open(CONFIG_FILE_PATH, 'r') as file:
+        config = json.load(file)
+        self.serverURL = config.get("serverURL", self.serverURL)
+        folder_to_track = config.get("folderToTrack")
+        if folder_to_track:
+          self.folderPath = Path(folder_to_track)    
+    except FileNotFoundError:
+      print(f"Config file not found. A new one will be created at {CONFIG_FILE_PATH}.")
+    except json.JSONDecodeError:
+      print(f"Error decoding JSON in config file: {CONFIG_FILE_PATH}. Reinitializing defaults.")
+
+  def saveConfig(self):
+   """Save the current configuration to the config file."""
+   config = {
+       "serverURL": self.serverURL,
+       "folderToTrack": str(self.folderPath) if self.folderPath else None
+   }
+   try:
+       with open(CONFIG_FILE_PATH, 'w') as file:
+           json.dump(config, file, indent=4)  # Use `indent=4` for readability.
+   except Exception as e:
+       print(f"Error saving config file: {e}")
+
+  def setFolderPath(self, folderPath):
+    """Set the folder path and save the configuration."""
+    self.folderPath = Path(folderPath)
+    self.saveConfig()
+
+  def setServerURL(self, serverURL):
+       """Set the server URL and save the configuration."""
+       self.serverURL = serverURL
+       self.saveConfig()
+
+config = Config()
 
 # Upload file
 def upload(file, metadata):
@@ -153,35 +200,6 @@ def syncFolder(folder_path):
   for filename in toDownload:
     download(filename, folder_path)
 
-def loadConfig():
-  try:
-        # Try to open the file in read mode and load its contents
-    with open(CONFIG_FILE_PATH, 'r') as file:
-      return json.load(file)
-  except FileNotFoundError:
-        # If the file does not exist, create it and initialize with default content
-    print("No config file, creating.")  # for now, just create the hardcoded file, later promt user
-    default_content = {"folderToTrack": "C:/Users/andi_/OneDrive/Documentos/noteApp"}
-    with open(CONFIG_FILE_PATH, 'w') as file:
-      json.dump(default_content, file)  # Write the default content as JSON
-      return default_content  # Return the default content
-
-def saveConfig(cwd):
-  folderToTrack = {"folderToTrack": cwd}
-  with open(CONFIG_FILE_PATH, 'w') as file:
-    json.dump(folderToTrack, file)  # Write the default content as JSON
-
-# Get the folder to track
-def get_folder_to_track():
-    config = loadConfig()
-    return Path(config.get("folderToTrack", "."))  # Default to current directory
-
-# Get the folder to track
-def set_folder_to_track():
-    cwd = os.getcwd()
-    print(cwd)
-    saveConfig(cwd)
-
 # Load metadata file
 def getLocalMetadataFile():
     try:
@@ -203,15 +221,22 @@ def saveLocalMetadataFile(metadata):
 
 
 if __name__ == "__main__":
-  folder_path = get_folder_to_track()
+  folder_path = config.folderPath
+  if folder_path is None:
+    print("Error: No Tracking folder set!")
+    print("Use command setFolder inside the desired folder.")
+    sys.exit(1)
+  
   print(f"Tracking folder: {folder_path}")
   
   if len(sys.argv) != 2:
-      print("Error: you must provide an argument. --help")
+      print("Error: you must provide an argument. help for more info")
       sys.exit(1)
   
   elif sys.argv[1] == "help":
-    print("NoteApp 0.2.0. To sync folder sync")
+    print(f"NoteApp {VERSION}. ")
+    print(f"To set current folder use: setFolder")
+    print(f"To sync folder use: sync")
     sys.exit(1)
   
   elif sys.argv[1] == "sync":
@@ -219,8 +244,15 @@ if __name__ == "__main__":
     sys.exit(1)
 
   elif sys.argv[1] == "setFolder":
-    set_folder_to_track()
-    sys.exit(1)
+    cwd = os.getcwd()
+    while True:
+      user_input = input(f"Setting: {cwd} to sync. y/n ")
+      if user_input == "y":
+        config.setFolderPath(cwd)
+        sys.exit(1)
+      else:
+        print("No changes made.")
+        sys.exit(1)
 
   else:
     print("Command: " + sys.argv[1] + " not recognized. help")  

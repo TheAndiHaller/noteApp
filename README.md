@@ -48,8 +48,13 @@ pip install --target ./libs -r requirements.txt
 - [ ] Trash bin for deleted files.
 
 - Client
+- [ ] Clean up code / separate functions / classes
+  - [x] Create Config Class
+  - [ ] Create Metadata Class
+  - [ ] 
+- [ ] Implement file deletion (Change status to deleted)
+- [ ] Differentiate between new Folder to sync and deleted files.
 - [ ] Recursive check for files in subfolders
-- [ ] Implement file deletrion (Change status to deleted)
 
 
 ## Version 0.3.0
