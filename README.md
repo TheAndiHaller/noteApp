@@ -50,8 +50,8 @@ pip install --target ./libs -r requirements.txt
 - Client
 - [ ] Clean up code / separate functions / classes
   - [x] Create Config Class
-  - [ ] Create Metadata Class
-  - [ ] 
+  - [x] Create Metadata Class
+  - [ ] Separate into functions
 - [ ] Implement file deletion (Change status to deleted)
 - [ ] Differentiate between new Folder to sync and deleted files.
 - [ ] Recursive check for files in subfolders

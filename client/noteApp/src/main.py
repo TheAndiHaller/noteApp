@@ -5,6 +5,7 @@ import zlib
 import json
 from pathlib import Path
 from datetime import datetime
+from dataclasses import dataclass
 
 #sys.path.append("libs")
 import requests
@@ -15,13 +16,10 @@ METADATA_FILE_PATH = os.path.join(SCRIPT_DIR, 'local_metadata.json')
 CONFIG_FILE_PATH = os.path.join(SCRIPT_DIR, 'config.json')
 VERSION = "V0.4.0"
 
-server_url = "http://localhost:3000/sync/"
-
 class Config:
   def __init__(self):
     self.serverURL = "http://localhost:3000/sync/"
     self.folderPath = None
-
     # Load configuration file
     self.loadConfigFile() 
 
@@ -63,15 +61,89 @@ class Config:
 
 config = Config()
 
+
+@dataclass
+class Metadata:
+  filename: str
+  crc32: str
+  mtime: float
+  state: str = "active"
+
+  # Just as an example
+  def is_modified(self, new_crc32: str) -> bool:
+    return self.crc32 != new_crc32
+
+class MetadataFile:
+  def __init__(self, path):
+    self.path: str = path
+    self.content = {"files": []}
+    self.load()
+
+  def load(self):
+    """Load metadata file from file system"""
+    try:
+      with open(self.path, 'r') as file:
+        self.content = json.load(file)
+    except FileNotFoundError:
+      print("Metadata file not found. Initializing a new one.")
+      self.save()
+    except json.JSONDecodeError:
+      print("Error decoding metadata file. Resetting to default.")
+      self.content = {"files": []}
+      self.save()
+
+  def save(self):
+    """Save metadata file to file system"""
+    try:
+      with open(self.path, 'w') as file:
+        json.dump(self.content, file, indent=4)
+    except IOError as e:
+      print("Error writing file")
+
+  def getFileMetadata(self, filename):
+    """Search for filename in metadata"""
+    file_metadata = next((file for file in self.content["files"] if file["filename"] == filename), None)
+    if file_metadata:
+      return Metadata(**file_metadata)
+    return None
+
+  def updateFileMetadata(self, metadata: Metadata):
+    """Find the file in metadata and update it, or add it if it doesn't exist"""
+    file_found = next((file for file in self.content["files"] if file["filename"] == metadata.filename), None)
+    if file_found:
+      file_found.update(metadata.__dict__)
+    else:
+      self.content["files"].append(metadata.__dict__)
+  
+  def removeFileMetadata(self, filename):
+    """Remove file metadata"""
+    self.content["files"] = [file for file in self.content["files"] if file["filename"] != filename]
+
+  def verifyMetadata(self, metadata: Metadata):
+    """Find the file in metadata and update it if changed, or add it if it doesn't exist"""
+    file_found = next((file for file in self.content["files"] if file["filename"] == metadata.filename), None)
+    if file_found:
+      if file_found["crc32"] != metadata.crc32:
+        print("File found: Updating")
+        file_found.update(metadata.__dict__)
+      else:
+        print("File found: Up to date")
+    else:
+      print("New file: Adding")
+      self.content["files"].append(metadata.__dict__)
+    self.save()
+
+metadataFile = MetadataFile(METADATA_FILE_PATH)
+
 # Upload file
 def upload(file, metadata):
-  res = requests.post(server_url + "upload", files=file, data=metadata, timeout=2)
+  res = requests.post(config.serverURL + "upload", files=file, data=metadata, timeout=2)
   print(res.text)
 
 # Download file
 def download(fileName, folder_path):
   try:
-    res = requests.get(server_url + "download", params={"file" : fileName}, timeout=10)
+    res = requests.get(config.serverURL + "download", params={"file" : fileName}, timeout=10)
     res.raise_for_status() 
 
     # ToDo: except if no metadata 
@@ -117,7 +189,7 @@ def downloadFiles(fileList):
 
 # get list of files
 def getFileList():
-  res = requests.get(server_url + "getfiles")
+  res = requests.get(config.serverURL + "getfiles")
   data = res.json()
   fileList = data["files"]
   print(fileList)
@@ -131,7 +203,7 @@ def calculate_crc32(data: bytes) -> int:
 def sendMetadata(metadata):
   try:
     res = requests.post(
-        url = server_url + "compare_metadata",
+        url = config.serverURL + "compare_metadata",
         json=metadata,
         timeout=10
       )
@@ -142,8 +214,74 @@ def sendMetadata(metadata):
      print(f"Error sending metadata to server: {e}")
      return {"error": str(e)}
    
+# Helper: Check if a file is valid for synchronization
+def isValidFile(file_path):
+  valid_extensions = [".txt", ".md", ".csv"]
+  return os.path.isfile(file_path) and any(file_path.endswith(ext) for ext in valid_extensions)
+
+# Helper: Calculate CRC32 and get modification time
+def getFileInfo(file_path):
+  with open(file_path, 'rb') as file:
+    file_data = file.read()
+    checksum = calculate_crc32(file_data)
+  mtime = os.stat(file_path).st_mtime
+  return checksum, mtime
+
+# Send metadata to server for comparation
+def sendMetadata2(metadata):
+  try:
+    res = requests.post(
+        url = config.serverURL + "compare_metadata",
+        json=metadata,
+        timeout=10
+      )
+    res.raise_for_status()
+    data = res.json()
+    print(data)
+    return data["toUpload"], data["toDownload"]
+  except requests.exceptions.RequestException as e:
+     print(f"Error sending metadata to server: {e}")
+     return None
+
+# Upload files with metadata to server
+def uploadFiles(files):
+  print("Uploading files:")
+  for filename in files:
+    print(f"{filename} ...")
+    file_path = os.path.join(folder_path, filename)
+    file_metadata = next((file for file in metadataFile.content['files'] if file['filename'] == filename))
+    with open(file_path, 'r') as file:
+       uploadSingleFile({"file" : file}, file_metadata)
+
+# Upload file
+def uploadSingleFile(file, metadata):
+  res = requests.post(config.serverURL + "upload", files=file, data=metadata, timeout=2)
+  print(res.text)
+
+# Download files with metadata from Server
+def downloadFiles2(files):
+  print("Downloading files:")
 
 # Synchronises the local folder with the server
+def syncFolderNew():
+  # Check folder for files:
+  for filename in os.listdir(config.folderPath):
+    # when we find a file, we buid the path and verify if it is a valid file
+    file_path = os.path.join(config.folderPath, filename)
+    if isValidFile(file_path):
+      # if valid, we get metadata
+      checksum, mtime = getFileInfo(file_path)
+      # with that we need to check if already tracking, if so, check if uptodate, if not tracked, add
+      metadata = Metadata(filename, checksum, mtime)
+      metadataFile.verifyMetadata(metadata)
+
+  toUplaod, toDownload = sendMetadata2(metadataFile.content["files"])
+
+  if toUplaod:
+    uploadFiles(toUplaod)
+  if toDownload:
+    downloadFiles2(toDownload)
+
 def syncFolder(folder_path):
   print("syncing...")
   # get local metadata file
@@ -186,7 +324,6 @@ def syncFolder(folder_path):
   server_data = sendMetadata(metadata['files'])
   toUpload = server_data['toUpload']
   toDownload = server_data['toDownload']
-  unchanged = server_data['unchanged']
   print("Files to upload: ")
   print(toUpload)
   for filename in toUpload:
